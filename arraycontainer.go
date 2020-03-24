@@ -12,8 +12,8 @@ type arrayContainer struct {
 
 func (ac *arrayContainer) String() string {
 	s := "{"
-	for it := ac.getShortIterator(); it.hasNext(); {
-		s += fmt.Sprintf("%v, ", it.next())
+	for it := ac.getShortIterator(); it.HasNext(); {
+		s += fmt.Sprintf("%v, ", it.Next())
 	}
 	return s + "}"
 }
@@ -24,15 +24,15 @@ func (ac *arrayContainer) fillLeastSignificant16bits(x []uint32, i int, mask uin
 	}
 }
 
-func (ac *arrayContainer) getShortIterator() shortPeekable {
+func (ac *arrayContainer) getShortIterator() ShortPeekable {
 	return &shortIterator{ac.content, 0}
 }
 
-func (ac *arrayContainer) getReverseIterator() shortIterable {
+func (ac *arrayContainer) getReverseIterator() ShortIterable {
 	return &reverseIterator{ac.content, len(ac.content) - 1}
 }
 
-func (ac *arrayContainer) getManyIterator() manyIterable {
+func (ac *arrayContainer) getManyIterator() ShortManyIterable {
 	return &shortIterator{ac.content, 0}
 }
 
@@ -207,8 +207,8 @@ func (ac *arrayContainer) equals(o container) bool {
 
 	ait := ac.getShortIterator()
 	bit := o.getShortIterator()
-	for ait.hasNext() {
-		if bit.next() != ait.next() {
+	for ait.HasNext() {
+		if bit.Next() != ait.Next() {
 			return false
 		}
 	}

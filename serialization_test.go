@@ -625,7 +625,7 @@ func TestSerializationCrashers(t *testing.T) {
 		_, err = NewBitmap().FromBuffer(data)
 		assert.Error(t, err)
 
-		// reset for next one
+		// reset for Next one
 		copy(data, orig)
 		_, err = NewBitmap().ReadFrom(bytes.NewReader(data))
 

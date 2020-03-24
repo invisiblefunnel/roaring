@@ -236,7 +236,7 @@ func newRunContainer16FromBitmapContainer(bc *bitmapContainer) *runContainer16 {
 		// stuff 1s into number's LSBs
 		curWordWith1s := curWord | (curWord - 1)
 
-		// find the next 0, potentially in a later word
+		// find the Next 0, potentially in a later word
 		runEnd := 0
 		for curWordWith1s == maxWord && longCtr < len(bc.bitmap)-1 {
 			longCtr++
@@ -395,8 +395,8 @@ func (rc *runContainer16) union(b *runContainer16) *runContainer16 {
 	alim := int64(len(rc.iv))
 	blim := int64(len(b.iv))
 
-	var na int64 // next from a
-	var nb int64 // next from b
+	var na int64 // Next from a
+	var nb int64 // Next from b
 
 	// merged holds the current merge output, which might
 	// get additional merges before being appended to m.
@@ -509,8 +509,8 @@ func (rc *runContainer16) unionCardinality(b *runContainer16) uint64 {
 	alim := int64(len(rc.iv))
 	blim := int64(len(b.iv))
 
-	var na int64 // next from a
-	var nb int64 // next from b
+	var na int64 // Next from a
+	var nb int64 // Next from b
 
 	// merged holds the current merge output, which might
 	// get additional merges before being appended to m.
@@ -712,14 +712,14 @@ toploop:
 				//	panic("huh? should only be possible that endx agree now!")
 				//}
 
-				// advance to next a interval
+				// advance to Next a interval
 				acuri++
 				if acuri >= numa {
 					break toploop
 				}
 				astart = int64(a.iv[acuri].start)
 
-				// advance to next b interval
+				// advance to Next b interval
 				bcuri++
 				if bcuri >= numb {
 					break toploop
@@ -822,14 +822,14 @@ toploop:
 				//	panic("huh? should only be possible that endx agree now!")
 				//}
 
-				// advance to next a interval
+				// advance to Next a interval
 				acuri++
 				if acuri >= numa {
 					break toploop
 				}
 				astart = int64(a.iv[acuri].start)
 
-				// advance to next b interval
+				// advance to Next b interval
 				bcuri++
 				if bcuri >= numb {
 					break toploop
@@ -1149,8 +1149,8 @@ func (rc *runContainer16) Add(k uint16) (wasNew bool) {
 
 //msgp:ignore runIterator
 
-// runIterator16 advice: you must call hasNext()
-// before calling next()/peekNext() to insure there are contents.
+// runIterator16 advice: you must call HasNext()
+// before calling Next()/PeekNext() to insure there are contents.
 type runIterator16 struct {
 	rc            *runContainer16
 	curIndex      int64
@@ -1162,16 +1162,16 @@ func (rc *runContainer16) newRunIterator16() *runIterator16 {
 	return &runIterator16{rc: rc, curIndex: 0, curPosInIndex: 0}
 }
 
-// hasNext returns false if calling next will panic. It
+// HasNext returns false if calling Next will panic. It
 // returns true when there is at least one more value
 // available in the iteration sequence.
-func (ri *runIterator16) hasNext() bool {
+func (ri *runIterator16) HasNext() bool {
 	return int64(len(ri.rc.iv)) > ri.curIndex+1 ||
 		(int64(len(ri.rc.iv)) == ri.curIndex+1 && ri.rc.iv[ri.curIndex].length >= ri.curPosInIndex)
 }
 
-// next returns the next value in the iteration sequence.
-func (ri *runIterator16) next() uint16 {
+// Next returns the Next value in the iteration sequence.
+func (ri *runIterator16) Next() uint16 {
 	next := ri.rc.iv[ri.curIndex].start + ri.curPosInIndex
 
 	if ri.curPosInIndex == ri.rc.iv[ri.curIndex].length {
@@ -1184,14 +1184,14 @@ func (ri *runIterator16) next() uint16 {
 	return next
 }
 
-// peekNext returns the next value in the iteration sequence without advancing the iterator
-func (ri *runIterator16) peekNext() uint16 {
+// PeekNext returns the Next value in the iteration sequence without advancing the iterator
+func (ri *runIterator16) PeekNext() uint16 {
 	return ri.rc.iv[ri.curIndex].start + ri.curPosInIndex
 }
 
-// advanceIfNeeded advances as long as the next value is smaller than minval
-func (ri *runIterator16) advanceIfNeeded(minval uint16) {
-	if !ri.hasNext() || ri.peekNext() >= minval {
+// AdvanceIfNeeded advances as long as the Next value is smaller than minval
+func (ri *runIterator16) AdvanceIfNeeded(minval uint16) {
+	if !ri.HasNext() || ri.PeekNext() >= minval {
 		return
 	}
 
@@ -1200,7 +1200,7 @@ func (ri *runIterator16) advanceIfNeeded(minval uint16) {
 		endxIndex:  int64(len(ri.rc.iv)),
 	}
 
-	// interval cannot be -1 because of minval > peekNext
+	// interval cannot be -1 because of minval > PeekNext
 	interval, isPresent, _ := ri.rc.search(int64(minval), opt)
 
 	// if the minval is present, set the curPosIndex at the right position
@@ -1209,14 +1209,14 @@ func (ri *runIterator16) advanceIfNeeded(minval uint16) {
 		ri.curPosInIndex = minval - ri.rc.iv[ri.curIndex].start
 	} else {
 		// otherwise interval is set to to the minimum index of rc.iv
-		// which comes strictly before the key, that's why we set the next interval
+		// which comes strictly before the key, that's why we set the Next interval
 		ri.curIndex = interval + 1
 		ri.curPosInIndex = 0
 	}
 }
 
-// runReverseIterator16 advice: you must call hasNext()
-// before calling next() to insure there are contents.
+// runReverseIterator16 advice: you must call HasNext()
+// before calling Next() to insure there are contents.
 type runReverseIterator16 struct {
 	rc            *runContainer16
 	curIndex      int64  // index into rc.iv
@@ -1239,15 +1239,15 @@ func (rc *runContainer16) newRunReverseIterator16() *runReverseIterator16 {
 	}
 }
 
-// hasNext returns false if calling next will panic. It
+// HasNext returns false if calling Next will panic. It
 // returns true when there is at least one more value
 // available in the iteration sequence.
-func (ri *runReverseIterator16) hasNext() bool {
+func (ri *runReverseIterator16) HasNext() bool {
 	return ri.curIndex > 0 || ri.curIndex == 0 && ri.curPosInIndex >= 0
 }
 
-// next returns the next value in the iteration sequence.
-func (ri *runReverseIterator16) next() uint16 {
+// Next returns the Next value in the iteration sequence.
+func (ri *runReverseIterator16) Next() uint16 {
 	next := ri.rc.iv[ri.curIndex].start + ri.curPosInIndex
 
 	if ri.curPosInIndex > 0 {
@@ -1268,10 +1268,10 @@ func (rc *runContainer16) newManyRunIterator16() *runIterator16 {
 }
 
 // hs are the high bits to include to avoid needing to reiterate over the buffer in NextMany
-func (ri *runIterator16) nextMany(hs uint32, buf []uint32) int {
+func (ri *runIterator16) NextMany(hs uint32, buf []uint32) int {
 	n := 0
 
-	if !ri.hasNext() {
+	if !ri.HasNext() {
 		return n
 	}
 
@@ -1288,6 +1288,47 @@ func (ri *runIterator16) nextMany(hs uint32, buf []uint32) int {
 			buf2 := buf[n : n+moreVals]
 			for i := range buf2 {
 				buf2[i] = base + uint32(i)
+			}
+
+			// update values
+			n += moreVals
+		}
+
+		if moreVals+int(ri.curPosInIndex) > int(ri.rc.iv[ri.curIndex].length) {
+			ri.curPosInIndex = 0
+			ri.curIndex++
+
+			if ri.curIndex == int64(len(ri.rc.iv)) {
+				break
+			}
+		} else {
+			ri.curPosInIndex += uint16(moreVals) //moreVals always fits in uint16
+		}
+	}
+
+	return n
+}
+
+func (ri *runIterator16) NextMany16(buf []uint16) int {
+	n := 0
+
+	if !ri.HasNext() {
+		return n
+	}
+
+	// start and end are inclusive
+	for n < len(buf) {
+		moreVals := 0
+
+		if ri.rc.iv[ri.curIndex].length >= ri.curPosInIndex {
+			// add as many as you can from this seq
+			moreVals = minOfInt(int(ri.rc.iv[ri.curIndex].length-ri.curPosInIndex)+1, len(buf)-n)
+			base := ri.rc.iv[ri.curIndex].start+ri.curPosInIndex
+
+			// allows BCE
+			buf2 := buf[n : n+moreVals]
+			for i := range buf2 {
+				buf2[i] = base + uint16(i)
 			}
 
 			// update values
@@ -1491,9 +1532,9 @@ func (rc *runContainer16) invert() *runContainer16 {
 			m = append(m, rc.invertlastInterval(uint16(invstart), i)...)
 			break
 		}
-		// INVAR: i and cur are not the last interval, there is a next at i+1
+		// INVAR: i and cur are not the last interval, there is a Next at i+1
 		//
-		// ........[cur.start, cur.last] ...... [next.start, next.last]....
+		// ........[cur.start, cur.last] ...... [Next.start, Next.last]....
 		//    ^                             ^                           ^
 		//   (a)                           (b)                         (c)
 		//
@@ -1947,15 +1988,15 @@ func (rc *runContainer16) fillLeastSignificant16bits(x []uint32, i int, mask uin
 	}
 }
 
-func (rc *runContainer16) getShortIterator() shortPeekable {
+func (rc *runContainer16) getShortIterator() ShortPeekable {
 	return rc.newRunIterator16()
 }
 
-func (rc *runContainer16) getReverseIterator() shortIterable {
+func (rc *runContainer16) getReverseIterator() ShortIterable {
 	return rc.newRunReverseIterator16()
 }
 
-func (rc *runContainer16) getManyIterator() manyIterable {
+func (rc *runContainer16) getManyIterator() ShortManyIterable {
 	return rc.newManyRunIterator16()
 }
 
@@ -2075,8 +2116,8 @@ func (rc *runContainer16) equals(o container) bool {
 	bit := o.getShortIterator()
 
 	//k := 0
-	for rit.hasNext() {
-		if bit.next() != rit.next() {
+	for rit.HasNext() {
+		if bit.Next() != rit.Next() {
 			return false
 		}
 		//k++
@@ -2188,16 +2229,16 @@ func (rc *runContainer16) inplaceUnion(rc2 *runContainer16) container {
 func (rc *runContainer16) iorBitmapContainer(bc *bitmapContainer) container {
 
 	it := bc.getShortIterator()
-	for it.hasNext() {
-		rc.Add(it.next())
+	for it.HasNext() {
+		rc.Add(it.Next())
 	}
 	return rc
 }
 
 func (rc *runContainer16) iorArray(ac *arrayContainer) container {
 	it := ac.getShortIterator()
-	for it.hasNext() {
-		rc.Add(it.next())
+	for it.HasNext() {
+		rc.Add(it.Next())
 	}
 	return rc
 }

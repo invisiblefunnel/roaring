@@ -51,7 +51,7 @@ func BenchmarkOrs(b *testing.B) {
 		b.StopTimer()
 	})
 
-	b.Run("next/add", func(b *testing.B) {
+	b.Run("Next/add", func(b *testing.B) {
 		buf := make([]uint32, 100)
 		for n := 0; n < b.N; n++ {
 			newBm := NewBitmap()
@@ -713,7 +713,7 @@ func BenchmarkNexts(b *testing.B) {
 
 		densityStr := fmt.Sprintf("__%f%%", density)
 
-		b.Run("next"+densityStr, func(b *testing.B) {
+		b.Run("Next"+densityStr, func(b *testing.B) {
 			for n := 0; n < b.N; n++ {
 				totnext = 0
 				iter := bm.Iterator()
@@ -755,7 +755,7 @@ func BenchmarkNextsRLE(b *testing.B) {
 	bm := NewBitmap()
 	bm.AddRange(0, 1000000)
 
-	b.Run("next", func(b *testing.B) {
+	b.Run("Next", func(b *testing.B) {
 		for n := 0; n < b.N; n++ {
 			totadd = 0
 			iter := bm.Iterator()

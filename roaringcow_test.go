@@ -672,8 +672,8 @@ func TestBitmapCOW(t *testing.T) {
 		rr.iadd(uint16(115))
 		var array [3]uint16
 		pos := 0
-		for itr := rr.getShortIterator(); itr.hasNext(); {
-			array[pos] = itr.next()
+		for itr := rr.getShortIterator(); itr.HasNext(); {
+			array[pos] = itr.Next()
 			pos++
 		}
 

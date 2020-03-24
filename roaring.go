@@ -233,20 +233,20 @@ type IntIterable interface {
 	Next() uint32
 }
 
-// IntPeekable allows you to look at the next value without advancing and
-// advance as long as the next value is smaller than minval
+// IntPeekable allows you to look at the Next value without advancing and
+// advance as long as the Next value is smaller than minval
 type IntPeekable interface {
 	IntIterable
-	// PeekNext peeks the next value without advancing the iterator
+	// PeekNext peeks the Next value without advancing the iterator
 	PeekNext() uint32
-	// AdvanceIfNeeded advances as long as the next value is smaller than minval
+	// AdvanceIfNeeded advances as long as the Next value is smaller than minval
 	AdvanceIfNeeded(minval uint32)
 }
 
 type intIterator struct {
 	pos              int
 	hs               uint32
-	iter             shortPeekable
+	iter             ShortPeekable
 	highlowcontainer *roaringArray
 }
 
@@ -262,22 +262,22 @@ func (ii *intIterator) init() {
 	}
 }
 
-// Next returns the next integer
+// Next returns the Next integer
 func (ii *intIterator) Next() uint32 {
-	x := uint32(ii.iter.next()) | ii.hs
-	if !ii.iter.hasNext() {
+	x := uint32(ii.iter.Next()) | ii.hs
+	if !ii.iter.HasNext() {
 		ii.pos = ii.pos + 1
 		ii.init()
 	}
 	return x
 }
 
-// PeekNext peeks the next value without advancing the iterator
+// PeekNext peeks the Next value without advancing the iterator
 func (ii *intIterator) PeekNext() uint32 {
-	return uint32(ii.iter.peekNext()&maxLowBit) | ii.hs
+	return uint32(ii.iter.PeekNext()&maxLowBit) | ii.hs
 }
 
-// AdvanceIfNeeded advances as long as the next value is smaller than minval
+// AdvanceIfNeeded advances as long as the Next value is smaller than minval
 func (ii *intIterator) AdvanceIfNeeded(minval uint32) {
 	to := minval >> 16
 
@@ -287,9 +287,9 @@ func (ii *intIterator) AdvanceIfNeeded(minval uint32) {
 	}
 
 	if ii.HasNext() && (ii.hs>>16) == to {
-		ii.iter.advanceIfNeeded(lowbits(minval))
+		ii.iter.AdvanceIfNeeded(lowbits(minval))
 
-		if !ii.iter.hasNext() {
+		if !ii.iter.HasNext() {
 			ii.pos++
 			ii.init()
 		}
@@ -307,7 +307,7 @@ func newIntIterator(a *Bitmap) *intIterator {
 type intReverseIterator struct {
 	pos              int
 	hs               uint32
-	iter             shortIterable
+	iter             ShortIterable
 	highlowcontainer *roaringArray
 }
 
@@ -325,10 +325,10 @@ func (ii *intReverseIterator) init() {
 	}
 }
 
-// Next returns the next integer
+// Next returns the Next integer
 func (ii *intReverseIterator) Next() uint32 {
-	x := uint32(ii.iter.next()) | ii.hs
-	if !ii.iter.hasNext() {
+	x := uint32(ii.iter.Next()) | ii.hs
+	if !ii.iter.HasNext() {
 		ii.pos = ii.pos - 1
 		ii.init()
 	}
@@ -352,7 +352,7 @@ type ManyIntIterable interface {
 type manyIntIterator struct {
 	pos              int
 	hs               uint32
-	iter             manyIterable
+	iter             ShortManyIterable
 	highlowcontainer *roaringArray
 }
 
@@ -371,7 +371,7 @@ func (ii *manyIntIterator) NextMany(buf []uint32) int {
 		if ii.iter == nil {
 			break
 		}
-		moreN := ii.iter.nextMany(ii.hs, buf[n:])
+		moreN := ii.iter.NextMany(ii.hs, buf[n:])
 		n += moreN
 		if moreN == 0 {
 			ii.pos = ii.pos + 1

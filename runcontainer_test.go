@@ -105,7 +105,7 @@ func TestRunOffset(t *testing.T) {
 }
 
 func TestRleRunIterator16(t *testing.T) {
-	t.Run("RunIterator16 unit tests for next, hasNext, and peekNext should pass", func(t *testing.T) {
+	t.Run("RunIterator16 unit tests for Next, HasNext, and PeekNext should pass", func(t *testing.T) {
 		{
 			rc := newRunContainer16()
 			msg := rc.String()
@@ -115,9 +115,9 @@ func TestRleRunIterator16(t *testing.T) {
 
 			it := rc.newRunIterator16()
 
-			assert.False(t, it.hasNext())
-			assert.Panics(t, func() { it.peekNext() })
-			assert.Panics(t, func() { it.next() })
+			assert.False(t, it.HasNext())
+			assert.Panics(t, func() { it.PeekNext() })
+			assert.Panics(t, func() { it.Next() })
 		}
 		{
 			rc := newRunContainer16TakeOwnership([]interval16{newInterval16Range(4, 4)})
@@ -125,32 +125,32 @@ func TestRleRunIterator16(t *testing.T) {
 
 			it := rc.newRunIterator16()
 
-			assert.True(t, it.hasNext())
-			assert.EqualValues(t, uint16(4), it.peekNext())
-			assert.EqualValues(t, uint16(4), it.next())
+			assert.True(t, it.HasNext())
+			assert.EqualValues(t, uint16(4), it.PeekNext())
+			assert.EqualValues(t, uint16(4), it.Next())
 		}
 		{
 			rc := newRunContainer16CopyIv([]interval16{newInterval16Range(4, 9)})
 			assert.EqualValues(t, 6, rc.cardinality())
 
 			it := rc.newRunIterator16()
-			assert.True(t, it.hasNext())
+			assert.True(t, it.HasNext())
 
 			for i := 4; i < 10; i++ {
-				assert.Equal(t, uint16(i), it.next())
+				assert.Equal(t, uint16(i), it.Next())
 			}
 
-			assert.False(t, it.hasNext())
+			assert.False(t, it.HasNext())
 		}
 
 		{
-			// basic nextMany test
+			// basic NextMany test
 			rc := newRunContainer16CopyIv([]interval16{newInterval16Range(4, 9)})
 			assert.EqualValues(t, 6, rc.cardinality())
 
 			it := rc.newManyRunIterator16()
 			buf := make([]uint32, 10)
-			n := it.nextMany(0, buf)
+			n := it.NextMany(0, buf)
 
 			assert.Equal(t, 6, n)
 
@@ -161,19 +161,19 @@ func TestRleRunIterator16(t *testing.T) {
 		}
 
 		{
-			// nextMany with len(buf) == 0
+			// NextMany with len(buf) == 0
 			rc := newRunContainer16CopyIv([]interval16{newInterval16Range(4, 9)})
 			assert.EqualValues(t, 6, rc.cardinality())
 
 			it := rc.newManyRunIterator16()
 			var buf []uint32
-			n := it.nextMany(0, buf)
+			n := it.NextMany(0, buf)
 
 			assert.Equal(t, 0, n)
 		}
 
 		{
-			// basic nextMany test across ranges
+			// basic NextMany test across ranges
 			rc := newRunContainer16CopyIv([]interval16{
 				newInterval16Range(4, 7),
 				newInterval16Range(11, 13),
@@ -183,7 +183,7 @@ func TestRleRunIterator16(t *testing.T) {
 
 			it := rc.newManyRunIterator16()
 			buf := make([]uint32, 15)
-			n := it.nextMany(0, buf)
+			n := it.NextMany(0, buf)
 
 			assert.Equal(t, 11, n)
 
@@ -193,7 +193,7 @@ func TestRleRunIterator16(t *testing.T) {
 			}
 		}
 		{
-			// basic nextMany test across ranges with different buffer sizes
+			// basic NextMany test across ranges with different buffer sizes
 			rc := newRunContainer16CopyIv([]interval16{
 				newInterval16Range(4, 7),
 				newInterval16Range(11, 13),
@@ -208,7 +208,7 @@ func TestRleRunIterator16(t *testing.T) {
 				buf := make([]uint32, bufSize)
 				seen := 0
 				it := rc.newManyRunIterator16()
-				for n := it.nextMany(hs, buf); n != 0; n = it.nextMany(hs, buf) {
+				for n := it.NextMany(hs, buf); n != 0; n = it.NextMany(hs, buf) {
 					// catch runaway iteration
 					assert.LessOrEqual(t, seen+n, expectedCard)
 
@@ -226,15 +226,15 @@ func TestRleRunIterator16(t *testing.T) {
 		}
 
 		{
-			// basic nextMany interaction with hasNext
+			// basic NextMany interaction with HasNext
 			rc := newRunContainer16CopyIv([]interval16{newInterval16Range(4, 4)})
 			assert.EqualValues(t, 1, rc.cardinality())
 
 			it := rc.newManyRunIterator16()
-			assert.True(t, it.hasNext())
+			assert.True(t, it.HasNext())
 
 			buf := make([]uint32, 4)
-			n := it.nextMany(0, buf)
+			n := it.NextMany(0, buf)
 
 			assert.Equal(t, 1, n)
 
@@ -244,10 +244,10 @@ func TestRleRunIterator16(t *testing.T) {
 				assert.Equal(t, e, buf[i])
 			}
 
-			assert.False(t, it.hasNext())
+			assert.False(t, it.HasNext())
 
 			buf = make([]uint32, 4)
-			n = it.nextMany(0, buf)
+			n = it.NextMany(0, buf)
 
 			assert.Equal(t, 0, n)
 
@@ -274,15 +274,15 @@ func TestRleRunIterator16(t *testing.T) {
 
 			it := rc.newRunIterator16()
 
-			assert.EqualValues(t, 0, it.next())
-			assert.EqualValues(t, 2, it.next())
-			assert.EqualValues(t, 4, it.next())
-			assert.EqualValues(t, 6, it.next())
-			assert.EqualValues(t, 7, it.next())
-			assert.EqualValues(t, 10, it.next())
-			assert.EqualValues(t, 11, it.next())
-			assert.EqualValues(t, MaxUint16, it.next())
-			assert.False(t, it.hasNext())
+			assert.EqualValues(t, 0, it.Next())
+			assert.EqualValues(t, 2, it.Next())
+			assert.EqualValues(t, 4, it.Next())
+			assert.EqualValues(t, 6, it.Next())
+			assert.EqualValues(t, 7, it.Next())
+			assert.EqualValues(t, 10, it.Next())
+			assert.EqualValues(t, 11, it.Next())
+			assert.EqualValues(t, MaxUint16, it.Next())
+			assert.False(t, it.HasNext())
 
 			newInterval16Range(0, MaxUint16)
 			rc2 := newRunContainer16TakeOwnership([]interval16{newInterval16Range(0, MaxUint16)})
@@ -295,50 +295,50 @@ func TestRleRunIterator16(t *testing.T) {
 
 func TestRleRunReverseIterator16(t *testing.T) {
 
-	t.Run("RunReverseIterator16 unit tests for next, hasNext, and peekNext should pass", func(t *testing.T) {
+	t.Run("RunReverseIterator16 unit tests for Next, HasNext, and PeekNext should pass", func(t *testing.T) {
 		{
 			rc := newRunContainer16()
 			it := rc.newRunReverseIterator16()
-			assert.False(t, it.hasNext())
-			assert.Panics(t, func() { it.next() })
+			assert.False(t, it.HasNext())
+			assert.Panics(t, func() { it.Next() })
 		}
 		{
 			rc := newRunContainer16TakeOwnership([]interval16{newInterval16Range(0, 0)})
 			it := rc.newRunReverseIterator16()
-			assert.True(t, it.hasNext())
-			assert.EqualValues(t, uint16(0), it.next())
-			assert.Panics(t, func() { it.next() })
-			assert.False(t, it.hasNext())
-			assert.Panics(t, func() { it.next() })
+			assert.True(t, it.HasNext())
+			assert.EqualValues(t, uint16(0), it.Next())
+			assert.Panics(t, func() { it.Next() })
+			assert.False(t, it.HasNext())
+			assert.Panics(t, func() { it.Next() })
 		}
 		{
 			rc := newRunContainer16TakeOwnership([]interval16{newInterval16Range(4, 4)})
 			it := rc.newRunReverseIterator16()
-			assert.True(t, it.hasNext())
-			assert.EqualValues(t, uint16(4), it.next())
-			assert.False(t, it.hasNext())
+			assert.True(t, it.HasNext())
+			assert.EqualValues(t, uint16(4), it.Next())
+			assert.False(t, it.HasNext())
 		}
 		{
 			rc := newRunContainer16TakeOwnership([]interval16{newInterval16Range(MaxUint16, MaxUint16)})
 			it := rc.newRunReverseIterator16()
-			assert.True(t, it.hasNext())
-			assert.EqualValues(t, uint16(MaxUint16), it.next())
-			assert.False(t, it.hasNext())
+			assert.True(t, it.HasNext())
+			assert.EqualValues(t, uint16(MaxUint16), it.Next())
+			assert.False(t, it.HasNext())
 		}
 		{
 			rc := newRunContainer16TakeOwnership([]interval16{newInterval16Range(4, 9)})
 			it := rc.newRunReverseIterator16()
-			assert.True(t, it.hasNext())
+			assert.True(t, it.HasNext())
 			for i := 9; i >= 4; i-- {
-				assert.Equal(t, uint16(i), it.next())
+				assert.Equal(t, uint16(i), it.Next())
 				if i > 4 {
-					assert.True(t, it.hasNext())
+					assert.True(t, it.HasNext())
 				} else if i == 4 {
-					assert.False(t, it.hasNext())
+					assert.False(t, it.HasNext())
 				}
 			}
-			assert.False(t, it.hasNext())
-			assert.Panics(t, func() { it.next() })
+			assert.False(t, it.HasNext())
+			assert.Panics(t, func() { it.Next() })
 		}
 		{
 			rc := newRunContainer16TakeOwnership([]interval16{
@@ -351,17 +351,17 @@ func TestRleRunReverseIterator16(t *testing.T) {
 			})
 
 			it := rc.newRunReverseIterator16()
-			assert.Equal(t, uint16(MaxUint16), it.next())
-			assert.Equal(t, uint16(12), it.next())
-			assert.Equal(t, uint16(11), it.next())
-			assert.Equal(t, uint16(10), it.next())
-			assert.Equal(t, uint16(7), it.next())
-			assert.Equal(t, uint16(6), it.next())
-			assert.Equal(t, uint16(4), it.next())
-			assert.Equal(t, uint16(2), it.next())
-			assert.Equal(t, uint16(0), it.next())
-			assert.Equal(t, false, it.hasNext())
-			assert.Panics(t, func() { it.next() })
+			assert.Equal(t, uint16(MaxUint16), it.Next())
+			assert.Equal(t, uint16(12), it.Next())
+			assert.Equal(t, uint16(11), it.Next())
+			assert.Equal(t, uint16(10), it.Next())
+			assert.Equal(t, uint16(7), it.Next())
+			assert.Equal(t, uint16(6), it.Next())
+			assert.Equal(t, uint16(4), it.Next())
+			assert.Equal(t, uint16(2), it.Next())
+			assert.Equal(t, uint16(0), it.Next())
+			assert.Equal(t, false, it.HasNext())
+			assert.Panics(t, func() { it.Next() })
 		}
 	})
 }
@@ -808,17 +808,17 @@ func TestRleCoverageOddsAndEnds16(t *testing.T) {
 			empty := newRunContainer16()
 			it := empty.newRunIterator16()
 
-			assert.Panics(t, func() { it.next() })
+			assert.Panics(t, func() { it.Next() })
 
 			it2 := ra.newRunIterator16()
 			it2.curIndex = int64(len(it2.rc.iv))
 
-			assert.Panics(t, func() { it2.next() })
+			assert.Panics(t, func() { it2.Next() })
 
-			// runIterator16.peekNext()
+			// runIterator16.PeekNext()
 			emptyIt := empty.newRunIterator16()
 
-			assert.Panics(t, func() { emptyIt.peekNext() })
+			assert.Panics(t, func() { emptyIt.PeekNext() })
 
 			// newRunContainer16FromArray
 			arr := newArrayContainerRange(1, 6)
@@ -851,13 +851,13 @@ func TestRleCoverageOddsAndEnds16(t *testing.T) {
 			assert.EqualValues(t, 5, rc3.cardinality())
 
 			it3 := rc3.newRunIterator16()
-			it3.next()
-			it3.next()
-			it3.next()
-			it3.next()
+			it3.Next()
+			it3.Next()
+			it3.Next()
+			it3.Next()
 
-			assert.EqualValues(t, 12, it3.peekNext())
-			assert.EqualValues(t, 12, it3.next())
+			assert.EqualValues(t, 12, it3.PeekNext())
+			assert.EqualValues(t, 12, it3.Next())
 		}
 
 		// runContainer16.equals
@@ -1644,8 +1644,8 @@ func TestRle16SubtractionOfIntervals019(t *testing.T) {
 				abkup := rc.Clone()
 
 				it := rcb.newRunIterator16()
-				for it.hasNext() {
-					nx := it.next()
+				for it.HasNext() {
+					nx := it.Next()
 					rc.isubtract(newInterval16Range(nx, nx))
 				}
 
@@ -2096,10 +2096,10 @@ func TestRle16RandomGetShortIterator030(t *testing.T) {
 				ait := ac.getShortIterator()
 				bit := bc.getShortIterator()
 
-				for ait.hasNext() {
-					rn := rit.next()
-					an := ait.next()
-					bn := bit.next()
+				for ait.HasNext() {
+					rn := rit.Next()
+					an := ait.Next()
+					bn := bit.Next()
 
 					assert.Equal(t, an, rn)
 					assert.Equal(t, bn, rn)
@@ -2198,10 +2198,10 @@ func TestRle16RandomIaddRangeIremoveRange031(t *testing.T) {
 				ait := ac.getShortIterator()
 				bit := bc.getShortIterator()
 
-				for ait.hasNext() {
-					rn := rit.next()
-					an := ait.next()
-					bn := bit.next()
+				for ait.HasNext() {
+					rn := rit.Next()
+					an := ait.Next()
+					bn := bit.Next()
 
 					assert.Equal(t, an, rn)
 					assert.Equal(t, bn, rn)

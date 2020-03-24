@@ -91,50 +91,50 @@ func TestIssue181(t *testing.T) {
 	})
 }
 
-// RunReverseIterator16 unit tests for cur, next, hasNext, and remove should pass
+// RunReverseIterator16 unit tests for cur, Next, HasNext, and remove should pass
 func TestBitmapContainerReverseIterator(t *testing.T) {
 	t.Run("reverse iterator on the empty container", func(t *testing.T) {
 		bc := newBitmapContainer()
 		it := bc.getReverseIterator()
 
-		assert.False(t, it.hasNext())
-		assert.Panics(t, func() { it.next() })
+		assert.False(t, it.HasNext())
+		assert.Panics(t, func() { it.Next() })
 	})
 
 	t.Run("reverse iterator on the container with range(0,0)", func(t *testing.T) {
 		bc := newBitmapContainerwithRange(0, 0)
 		it := bc.getReverseIterator()
 
-		assert.True(t, it.hasNext())
-		assert.EqualValues(t, 0, it.next())
+		assert.True(t, it.HasNext())
+		assert.EqualValues(t, 0, it.Next())
 	})
 
 	t.Run("reverse iterator on the container with range(4,4)", func(t *testing.T) {
 		bc := newBitmapContainerwithRange(4, 4)
 		it := bc.getReverseIterator()
 
-		assert.True(t, it.hasNext())
-		assert.EqualValues(t, 4, it.next())
+		assert.True(t, it.HasNext())
+		assert.EqualValues(t, 4, it.Next())
 	})
 
 	t.Run("reverse iterator on the container with range(4,9)", func(t *testing.T) {
 		bc := newBitmapContainerwithRange(4, 9)
 		it := bc.getReverseIterator()
 
-		assert.True(t, it.hasNext())
+		assert.True(t, it.HasNext())
 
 		for i := 9; i >= 4; i-- {
-			assert.EqualValues(t, i, it.next())
+			assert.EqualValues(t, i, it.Next())
 
 			if i > 4 {
-				assert.True(t, it.hasNext())
+				assert.True(t, it.HasNext())
 			} else if i == 4 {
-				assert.False(t, it.hasNext())
+				assert.False(t, it.HasNext())
 			}
 		}
 
-		assert.False(t, it.hasNext())
-		assert.Panics(t, func() { it.next() })
+		assert.False(t, it.HasNext())
+		assert.Panics(t, func() { it.Next() })
 	})
 
 	t.Run("reverse iterator on the container with values", func(t *testing.T) {
@@ -148,11 +148,11 @@ func TestBitmapContainerReverseIterator(t *testing.T) {
 		it := bc.getReverseIterator()
 		n := len(values)
 
-		assert.True(t, it.hasNext())
+		assert.True(t, it.HasNext())
 
-		for it.hasNext() {
+		for it.HasNext() {
 			n--
-			assert.Equal(t, values[n], it.next())
+			assert.Equal(t, values[n], it.Next())
 		}
 
 		assert.Equal(t, 0, n)

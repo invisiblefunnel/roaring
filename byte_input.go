@@ -6,7 +6,7 @@ import (
 )
 
 type byteInput interface {
-	// next returns a slice containing the next n bytes from the buffer,
+	// Next returns a slice containing the Next n bytes from the buffer,
 	// advancing the buffer as if the bytes had been returned by Read.
 	next(n int) ([]byte, error)
 	// readUInt32 reads uint32 with LittleEndian order
@@ -38,7 +38,7 @@ type byteBuffer struct {
 	off int
 }
 
-// next returns a slice containing the next n bytes from the reader
+// Next returns a slice containing the Next n bytes from the reader
 // If there are fewer bytes than the given n, io.ErrUnexpectedEOF will be returned
 func (b *byteBuffer) next(n int) ([]byte, error) {
 	m := len(b.buf) - b.off
@@ -106,7 +106,7 @@ type byteInputAdapter struct {
 	readBytes int
 }
 
-// next returns a slice containing the next n bytes from the buffer,
+// Next returns a slice containing the Next n bytes from the buffer,
 // advancing the buffer as if the bytes had been returned by Read.
 func (b *byteInputAdapter) next(n int) ([]byte, error) {
 	buf := make([]byte, n)

@@ -467,7 +467,7 @@ func advanceUntil(
 		return length
 	}
 
-	// we know that the next-smallest span was too small
+	// we know that the Next-smallest span was too small
 	lower += (spansize >> 1)
 
 	mid := 0

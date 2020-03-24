@@ -43,7 +43,7 @@ func TestExample_roaring060(t *testing.T) {
 	}
 	fmt.Println()
 
-	// next we include an example of serialization
+	// Next we include an example of serialization
 	buf := new(bytes.Buffer)
 	size, err := rb1.WriteTo(buf)
 	if err != nil {

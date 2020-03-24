@@ -1,14 +1,14 @@
 package roaring
 
-type shortIterable interface {
-	hasNext() bool
-	next() uint16
+type ShortIterable interface {
+	HasNext() bool
+	Next() uint16
 }
 
-type shortPeekable interface {
-	shortIterable
-	peekNext() uint16
-	advanceIfNeeded(minval uint16)
+type ShortPeekable interface {
+	ShortIterable
+	PeekNext() uint16
+	AdvanceIfNeeded(minval uint16)
 }
 
 type shortIterator struct {
@@ -16,22 +16,22 @@ type shortIterator struct {
 	loc   int
 }
 
-func (si *shortIterator) hasNext() bool {
+func (si *shortIterator) HasNext() bool {
 	return si.loc < len(si.slice)
 }
 
-func (si *shortIterator) next() uint16 {
+func (si *shortIterator) Next() uint16 {
 	a := si.slice[si.loc]
 	si.loc++
 	return a
 }
 
-func (si *shortIterator) peekNext() uint16 {
+func (si *shortIterator) PeekNext() uint16 {
 	return si.slice[si.loc]
 }
 
-func (si *shortIterator) advanceIfNeeded(minval uint16) {
-	if si.hasNext() && si.peekNext() < minval {
+func (si *shortIterator) AdvanceIfNeeded(minval uint16) {
+	if si.HasNext() && si.PeekNext() < minval {
 		si.loc = advanceUntil(si.slice, si.loc, len(si.slice), minval)
 	}
 }
@@ -41,11 +41,11 @@ type reverseIterator struct {
 	loc   int
 }
 
-func (si *reverseIterator) hasNext() bool {
+func (si *reverseIterator) HasNext() bool {
 	return si.loc >= 0
 }
 
-func (si *reverseIterator) next() uint16 {
+func (si *reverseIterator) Next() uint16 {
 	a := si.slice[si.loc]
 	si.loc--
 	return a

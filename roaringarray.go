@@ -37,9 +37,9 @@ type container interface {
 	not(start, final int) container        // range is [firstOfRange,lastOfRange)
 	inot(firstOfRange, endx int) container // i stands for inplace, range is [firstOfRange,endx)
 	xor(r container) container
-	getShortIterator() shortPeekable
-	getReverseIterator() shortIterable
-	getManyIterator() manyIterable
+	getShortIterator() ShortPeekable
+	getReverseIterator() ShortIterable
+	getManyIterator() ShortManyIterable
 	contains(i uint16) bool
 	maximum() uint16
 	minimum() uint16
@@ -77,6 +77,7 @@ const (
 	arrayContype
 	run16Contype
 	run32Contype
+	emptyContype
 )
 
 // careful: range is [firstOfRange,lastOfRange]
@@ -805,7 +806,7 @@ func (ra *roaringArray) advanceUntil(min uint16, pos int) int {
 		return len(ra.keys)
 	}
 
-	// we know that the next-smallest span was too small
+	// we know that the Next-smallest span was too small
 	lower += (spansize >> 1)
 
 	mid := 0

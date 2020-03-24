@@ -14,8 +14,8 @@ type bitmapContainer struct {
 
 func (bc bitmapContainer) String() string {
 	var s string
-	for it := bc.getShortIterator(); it.hasNext(); {
-		s += fmt.Sprintf("%v, ", it.next())
+	for it := bc.getShortIterator(); it.HasNext(); {
+		s += fmt.Sprintf("%v, ", it.Next())
 	}
 	return s
 }
@@ -101,21 +101,21 @@ type bitmapContainerShortIterator struct {
 	i   int
 }
 
-func (bcsi *bitmapContainerShortIterator) next() uint16 {
+func (bcsi *bitmapContainerShortIterator) Next() uint16 {
 	j := bcsi.i
 	bcsi.i = bcsi.ptr.NextSetBit(bcsi.i + 1)
 	return uint16(j)
 }
-func (bcsi *bitmapContainerShortIterator) hasNext() bool {
+func (bcsi *bitmapContainerShortIterator) HasNext() bool {
 	return bcsi.i >= 0
 }
 
-func (bcsi *bitmapContainerShortIterator) peekNext() uint16 {
+func (bcsi *bitmapContainerShortIterator) PeekNext() uint16 {
 	return uint16(bcsi.i)
 }
 
-func (bcsi *bitmapContainerShortIterator) advanceIfNeeded(minval uint16) {
-	if bcsi.hasNext() && bcsi.peekNext() < minval {
+func (bcsi *bitmapContainerShortIterator) AdvanceIfNeeded(minval uint16) {
+	if bcsi.HasNext() && bcsi.PeekNext() < minval {
 		bcsi.i = bcsi.ptr.NextSetBit(int(minval))
 	}
 }
@@ -124,7 +124,7 @@ func newBitmapContainerShortIterator(a *bitmapContainer) *bitmapContainerShortIt
 	return &bitmapContainerShortIterator{a, a.NextSetBit(0)}
 }
 
-func (bc *bitmapContainer) getShortIterator() shortPeekable {
+func (bc *bitmapContainer) getShortIterator() ShortPeekable {
 	return newBitmapContainerShortIterator(bc)
 }
 
@@ -133,9 +133,9 @@ type reverseBitmapContainerShortIterator struct {
 	i   int
 }
 
-func (bcsi *reverseBitmapContainerShortIterator) next() uint16 {
+func (bcsi *reverseBitmapContainerShortIterator) Next() uint16 {
 	if bcsi.i == -1 {
-		panic("reverseBitmapContainerShortIterator.next() going beyond what is available")
+		panic("reverseBitmapContainerShortIterator.Next() going beyond what is available")
 	}
 
 	j := bcsi.i
@@ -143,7 +143,7 @@ func (bcsi *reverseBitmapContainerShortIterator) next() uint16 {
 	return uint16(j)
 }
 
-func (bcsi *reverseBitmapContainerShortIterator) hasNext() bool {
+func (bcsi *reverseBitmapContainerShortIterator) HasNext() bool {
 	return bcsi.i >= 0
 }
 
@@ -154,7 +154,7 @@ func newReverseBitmapContainerShortIterator(a *bitmapContainer) *reverseBitmapCo
 	return &reverseBitmapContainerShortIterator{a, int(a.maximum())}
 }
 
-func (bc *bitmapContainer) getReverseIterator() shortIterable {
+func (bc *bitmapContainer) getReverseIterator() ShortIterable {
 	return newReverseBitmapContainerShortIterator(bc)
 }
 
@@ -164,7 +164,7 @@ type bitmapContainerManyIterator struct {
 	bitset uint64
 }
 
-func (bcmi *bitmapContainerManyIterator) nextMany(hs uint32, buf []uint32) int {
+func (bcmi *bitmapContainerManyIterator) NextMany(hs uint32, buf []uint32) int {
 	n := 0
 	base := bcmi.base
 	bitset := bcmi.bitset
@@ -191,11 +191,38 @@ func (bcmi *bitmapContainerManyIterator) nextMany(hs uint32, buf []uint32) int {
 	return n
 }
 
+func (bcmi *bitmapContainerManyIterator) NextMany16(buf []uint16) int {
+	n := 0
+	base := bcmi.base
+	bitset := bcmi.bitset
+
+	for n < len(buf) {
+		if bitset == 0 {
+			base++
+			if base >= len(bcmi.ptr.bitmap) {
+				bcmi.base = base
+				bcmi.bitset = bitset
+				return n
+			}
+			bitset = bcmi.ptr.bitmap[base]
+			continue
+		}
+		t := bitset & -bitset
+		buf[n] = uint16((base * 64) + int(popcount(t-1)))
+		n = n + 1
+		bitset ^= t
+	}
+
+	bcmi.base = base
+	bcmi.bitset = bitset
+	return n
+}
+
 func newBitmapContainerManyIterator(a *bitmapContainer) *bitmapContainerManyIterator {
 	return &bitmapContainerManyIterator{a, -1, 0}
 }
 
-func (bc *bitmapContainer) getManyIterator() manyIterable {
+func (bc *bitmapContainer) getManyIterator() ShortManyIterable {
 	return newBitmapContainerManyIterator(bc)
 }
 
@@ -259,8 +286,8 @@ func (bc *bitmapContainer) equals(o container) bool {
 	ait := o.getShortIterator()
 	bit := bc.getShortIterator()
 
-	for ait.hasNext() {
-		if bit.next() != ait.next() {
+	for ait.HasNext() {
+		if bit.Next() != ait.Next() {
 			return false
 		}
 	}

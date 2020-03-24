@@ -19,13 +19,13 @@ func checkContent(c container, s []uint16) bool {
 	si := c.getShortIterator()
 	ctr := 0
 	fail := false
-	for si.hasNext() {
+	for si.HasNext() {
 		if ctr == len(s) {
 			log.Println("HERE")
 			fail = true
 			break
 		}
-		i := si.next()
+		i := si.Next()
 		if i != s[ctr] {
 
 			log.Println("THERE", i, s[ctr])
@@ -42,8 +42,8 @@ func checkContent(c container, s []uint16) bool {
 		log.Println("fail, found ")
 		si = c.getShortIterator()
 		z := 0
-		for si.hasNext() {
-			si.next()
+		for si.HasNext() {
+			si.Next()
 			z++
 		}
 		log.Println(z, len(s))
@@ -59,10 +59,10 @@ func testContainerIteratorPeekNext(t *testing.T, c container) {
 	}
 
 	i := c.getShortIterator()
-	assert.True(t, i.hasNext())
+	assert.True(t, i.HasNext())
 
-	for i.hasNext() {
-		assert.Equal(t, i.peekNext(), i.next())
+	for i.HasNext() {
+		assert.Equal(t, i.PeekNext(), i.Next())
 		testSize--
 	}
 
@@ -95,10 +95,10 @@ func testContainerIteratorAdvance(t *testing.T, con container) {
 	t.Run("advance by using a new short iterator", func(t *testing.T) {
 		for _, c := range cases {
 			i := con.getShortIterator()
-			i.advanceIfNeeded(c.minval)
+			i.AdvanceIfNeeded(c.minval)
 
-			assert.True(t, i.hasNext())
-			assert.Equal(t, c.expected, i.peekNext())
+			assert.True(t, i.HasNext())
+			assert.Equal(t, c.expected, i.PeekNext())
 		}
 	})
 
@@ -106,36 +106,36 @@ func testContainerIteratorAdvance(t *testing.T, con container) {
 		i := con.getShortIterator()
 
 		for _, c := range cases {
-			i.advanceIfNeeded(c.minval)
+			i.AdvanceIfNeeded(c.minval)
 
-			assert.True(t, i.hasNext())
-			assert.Equal(t, c.expected, i.peekNext())
+			assert.True(t, i.HasNext())
+			assert.Equal(t, c.expected, i.PeekNext())
 		}
 	})
 
 	t.Run("advance out of a container value", func(t *testing.T) {
 		i := con.getShortIterator()
 
-		i.advanceIfNeeded(33)
-		assert.True(t, i.hasNext())
-		assert.EqualValues(t, 33, i.peekNext())
+		i.AdvanceIfNeeded(33)
+		assert.True(t, i.HasNext())
+		assert.EqualValues(t, 33, i.PeekNext())
 
-		i.advanceIfNeeded(MaxUint16 - 1)
-		assert.False(t, i.hasNext())
+		i.AdvanceIfNeeded(MaxUint16 - 1)
+		assert.False(t, i.HasNext())
 
-		i.advanceIfNeeded(MaxUint16)
-		assert.False(t, i.hasNext())
+		i.AdvanceIfNeeded(MaxUint16)
+		assert.False(t, i.HasNext())
 	})
 
 	t.Run("advance on a value that is less than the pointed value", func(t *testing.T) {
 		i := con.getShortIterator()
-		i.advanceIfNeeded(29)
-		assert.True(t, i.hasNext())
-		assert.EqualValues(t, 31, i.peekNext())
+		i.AdvanceIfNeeded(29)
+		assert.True(t, i.HasNext())
+		assert.EqualValues(t, 31, i.PeekNext())
 
-		i.advanceIfNeeded(13)
-		assert.True(t, i.hasNext())
-		assert.EqualValues(t, 31, i.peekNext())
+		i.AdvanceIfNeeded(13)
+		assert.True(t, i.HasNext())
+		assert.EqualValues(t, 31, i.PeekNext())
 	})
 }
 
@@ -153,9 +153,9 @@ func benchmarkContainerIteratorAdvance(b *testing.B, con container) {
 				val := uint16(n % initsize)
 
 				i := con.getShortIterator()
-				i.advanceIfNeeded(val)
+				i.AdvanceIfNeeded(val)
 
-				diff += i.peekNext() - val
+				diff += i.PeekNext() - val
 			}
 
 			b.StopTimer()
@@ -173,7 +173,7 @@ func benchmarkContainerIteratorNext(b *testing.B, con container) {
 			con.iadd(uint16(i))
 		}
 
-		b.Run(fmt.Sprintf("init size %d shortIterator next", initsize), func(b *testing.B) {
+		b.Run(fmt.Sprintf("init size %d shortIterator Next", initsize), func(b *testing.B) {
 			b.StartTimer()
 			diff := 0
 
@@ -181,8 +181,8 @@ func benchmarkContainerIteratorNext(b *testing.B, con container) {
 				i := con.getShortIterator()
 				j := 0
 
-				for i.hasNext() {
-					i.next()
+				for i.HasNext() {
+					i.Next()
 					j++
 				}
 
@@ -204,8 +204,8 @@ func TestContainerReverseIterator(t *testing.T) {
 	si := c.getReverseIterator()
 	i := 4
 
-	for si.hasNext() {
-		assert.Equal(t, content[i], si.next())
+	for si.HasNext() {
+		assert.Equal(t, content[i], si.Next())
 		i--
 	}
 
@@ -228,8 +228,8 @@ func TestRoaringContainer(t *testing.T) {
 		c := makeContainer(content)
 		si := c.getShortIterator()
 		i := 0
-		for si.hasNext() {
-			si.next()
+		for si.HasNext() {
+			si.Next()
 			i++
 		}
 
@@ -265,8 +265,8 @@ func TestRoaringContainer(t *testing.T) {
 		c = c.inot(0, 11)
 		si := c.getShortIterator()
 		i := 0
-		for si.hasNext() {
-			si.next()
+		for si.HasNext() {
+			si.Next()
 			i++
 		}
 
