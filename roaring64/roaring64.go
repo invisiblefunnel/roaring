@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/RoaringBitmap/roaring"
+	"github.com/invisiblefunnel/roaring"
 )
 
 // Bitmap represents a compressed bitmap where you can add integers.

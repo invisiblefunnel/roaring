@@ -8,7 +8,7 @@ import (
 	"testing"
 	"unsafe"
 
-	"github.com/RoaringBitmap/roaring"
+	"github.com/invisiblefunnel/roaring"
 	"github.com/stretchr/testify/assert"
 	"github.com/willf/bitset"
 )

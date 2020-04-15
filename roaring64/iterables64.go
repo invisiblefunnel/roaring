@@ -1,6 +1,6 @@
 package roaring64
 
-import "github.com/RoaringBitmap/roaring"
+import "github.com/invisiblefunnel/roaring"
 
 // IntIterable allows you to iterate over the values in a Bitmap
 type IntIterable64 interface {
